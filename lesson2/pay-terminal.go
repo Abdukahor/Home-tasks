@@ -82,9 +82,9 @@ func checkPref() bool {
 }
 
 func sum() {
-	err3 := "Please, enter contribution amount properly"
+	err3 := "Please, enter amount of money properly"
 
-	fmt.Print("Enter sum:")
+	fmt.Print("Enter amount:")
 	fmt.Scanf("%d\n", &transact)
 
 	if transact == 0 {
