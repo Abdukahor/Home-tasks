@@ -48,7 +48,7 @@ func number(operator string) {
 		if len(t) !=9 || checkPref() == false  {
 			fmt.Println(err2)
 			fmt.Println(strings.Repeat("-", len(err2)) + "\v")
-			//number(operator)
+			number(operator)
 		}else {
 			sum()
 		}
@@ -84,7 +84,7 @@ func checkPref() bool {
 func sum() {
 	err3 := "Please, enter amount of money properly"
 
-	fmt.Print("Enter amount:")
+	fmt.Print("Enter sum:")
 	fmt.Scanf("%d\n", &transact)
 
 	if transact == 0 {
