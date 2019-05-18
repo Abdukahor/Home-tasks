@@ -52,8 +52,8 @@ func cheque()  {
 	pizPrice :=[]int{6,10,15,12,}
 	drPrice :=[]int{1,1,2,1,}
 
-	n1 :=[]int{in1,in3,in5,} // inputed number of pizza
-	n2 :=[]int{in2,in3,in6,} // inputed amount of pizza
+	n1 :=[]int{in1,in3,in5,in7,} // inputed number of pizza
+	n2 :=[]int{in2,in3,in6,in8,} // inputed amount of pizza
 	currentTime := time.Now().Format("02.01.2006 15:04:05")
 	total := 0
 
