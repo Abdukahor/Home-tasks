@@ -13,6 +13,7 @@ const (
 	Create = "create"
 	Insert = "insert"
 	Update = "update"
+	Delete = "delete"
 )
 
 var (
@@ -168,6 +169,29 @@ func main() {
 				}
 			}
 
+			break
+		case Delete:
+			if len(commandStruct) < 4 {
+				fmt.Println("command not recognize")
+			}else {
+				x,_ := strconv.Atoi(commandStruct[1])
+				tableName := strings.TrimSpace(commandStruct[3])
+				if db[tableName] == nil {
+					fmt.Println("table not exits")
+				} else {
+					for i, row := range arrayOfStudents {
+						if x == row.ID {
+							fmt.Printf("\n|  ID|               Fname|Age|Average |\n")
+							fmt.Println("------------------------------------")
+							fmt.Printf("|%4d|%20s|%3d|%2.2f|\n", row.ID, row.Fname, row.Age, row.Average)
+							students = append(students[:i], students[i+1:]...)
+							db[tableName] = &students
+							arrayOfStudents = *db[tableName]
+							all()
+						}
+					}
+				}
+			}
 			break
 		default:
 			if len(commandStruct) > 1 {
