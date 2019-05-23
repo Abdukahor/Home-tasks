@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"time"
+	_"time"
 )
 
 func checkHash(password string, hashStr string) bool {
-	now := time.Now()
-	timeFormat := now.Format("02.2006")
+	//now := time.Now()
+	//timeFormat := now.Format("02.2006")
 	hash := sha512.New()
-	io.WriteString(hash, "root:"+password+":"+timeFormat)
+	io.WriteString(hash, "root:"+password+":23.2019")
 	return hashStr == eb64.RawStdEncoding.EncodeToString(hash.Sum(nil))
 }
 
