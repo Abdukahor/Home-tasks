@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"strconv"
 )
 
 const (
 	Select = "select"
 	Create = "create"
 	Insert = "insert"
+	Update = "update"
 )
 
 var (
@@ -66,10 +68,9 @@ func main() {
 					switch columns {
 
 					case "*":
-						if len(commandStruct) == 7 {
+						if len(commandStruct) == 8 {
 							if commandStruct[4] == "where" && commandStruct[5] == "age" {
-								fmt.Println("Enter number")
-								fmt.Scanf("%d", &y)
+								y, _ = strconv.Atoi(commandStruct[7])
 
 								if commandStruct[6] == "<" {
 									less()
@@ -128,7 +129,7 @@ func main() {
 							x = row.ID
 						}
 					}
-
+					x += 1
 					emptySlice := new(Student)
 					emptySlice.Insert(x)
 					students = append(students, *emptySlice)
@@ -141,7 +142,33 @@ func main() {
 				fmt.Println("command not recognize")
 			}
 			break
+		case Update:
+			if len(commandStruct) < 4 {
+				fmt.Println("command not recognize")
+			}else {
+				x,_ := strconv.Atoi(commandStruct[1])
+				tableName := strings.TrimSpace(commandStruct[3])
+				if db[tableName] == nil {
+					fmt.Println("table not exits")
+				} else {
+					for i, row := range arrayOfStudents {
+						if x == row.ID {
+							fmt.Printf("\n|  ID|               Fname|Age|Average |\n")
+							fmt.Println("------------------------------------")
+							fmt.Printf("|%4d|%20s|%3d|%2.2f|\n", row.ID, row.Fname, row.Age, row.Average)
+							students = append(students[:i], students[i+1:]...)
+							emptySlice := new(Student)
+							emptySlice.Insert(x)
+							students = append(students, *emptySlice)
+							db[tableName] = &students
+							arrayOfStudents = *db[tableName]
+							all()
+						}
+					}
+				}
+			}
 
+			break
 		default:
 			if len(commandStruct) > 1 {
 				fmt.Println("command not recognize")
@@ -236,12 +263,17 @@ func equal()  {
 func (s *Student) Insert(x int)  Student{
 	age := 0
 	var fname string= ""
-	fmt.Println("Fname: ")
-	fmt.Scan(&fname)
-	fmt.Println("Age: ")
-	fmt.Scan(&age)
 
-	s.ID = x + 1
+	for fname == ""{
+		fmt.Println("Fname: ")
+		fmt.Scan(&fname)
+	}
+	for age == 0{
+		fmt.Println("Age: ")
+		fmt.Scan(&age)
+	}
+
+	s.ID = x
 	s.Fname = fname
 	s.Age = age
 	return *s
