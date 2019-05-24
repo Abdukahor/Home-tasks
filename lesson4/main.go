@@ -14,6 +14,7 @@ const (
 	Insert = "insert"
 	Update = "update"
 	Delete = "delete"
+	Exit   = "exit"
 )
 
 var (
@@ -21,6 +22,8 @@ var (
 	arrayOfStudents []Student
 	students []Student
 	y int
+	outputArr =[]string{"|  ID|               Fname|Age|  IsStudent|  IsWorker|  IsTeacher|Average| Experience|",
+		"|  ID|               Fname|Age|"}
 
 )
 
@@ -29,21 +32,21 @@ func main() {
 	var login string
 	var password string
 	var logined bool
-	//db := map[string]*[]Student{}
 	var exit bool
 
 	readedPassHash := readPasswordHash()
 
 	for !logined {
-		fmt.Println("Enter username: ")
+		fmt.Print("Enter username: ")
 		fmt.Scan(&login)
-		fmt.Println("Enter pass:")
+		fmt.Print("Enter pass: ")
 		fmt.Scan(&password)
 		if login == "root" && checkHash(password, readedPassHash) {
 			logined = true
-			fmt.Println("Hello, root")
+			fmt.Println("\nHello, root\n")
 		} else {
-			fmt.Println("Invalid credentials")
+			fmt.Println("\nInvalid credentials")
+			fmt.Println("-------------------\n")
 		}
 	}
 
@@ -57,12 +60,12 @@ func main() {
 		case Select:
 			// select * from tablename
 			if len(commandStruct) < 4 {
-				fmt.Println("command now recognize")
+				errCommand()
 			} else {
 				tableName := strings.TrimSpace(commandStruct[3])
 
 				if db[tableName] == nil {
-					fmt.Println("table not exits")
+					tableNotExist()
 				} else {
 					columns := commandStruct[1]
 					arrayOfStudents = *db[tableName]
@@ -81,12 +84,13 @@ func main() {
 									equal()
 								} else {
 									fmt.Println("Enter character correctly(<,>,==)")
+									fmt.Println("---------------------------------")
 								}
 							}
 						} else if len(commandStruct) == 4 {
 							all()
 						} else {
-							fmt.Println("command not recognize")
+							errCommand()
 						}
 						break
 
@@ -103,27 +107,27 @@ func main() {
 						break
 
 					default:
-						fmt.Println("Wrong column name(", columns, ")")
+						fmt.Println("\nWrong column name(", columns, ")")
+						fmt.Println("---------------------" + strings.Repeat("-", len(columns)) + "\n")
 						break
 					}
-
 				}
 				break
+
 			}
 		case Create:
 			tableName := strings.TrimSpace(commandStruct[1])
 			emptySlice := []Student{}
 			db[tableName] = &emptySlice
-			fmt.Println("table created: " + tableName)
+			fmt.Println( "\n" + tableName + " created \n")
 			break
 
 		case Insert:
 			if commandStruct[1] == "into" {
 				tableName := strings.TrimSpace(commandStruct[2])
 				if db[tableName] == nil {
-					fmt.Println("table not exits")
+					tableNotExist()
 				} else {
-
 					x := 0
 					for _, row := range arrayOfStudents {
 						if x < row.ID {
@@ -138,167 +142,235 @@ func main() {
 					arrayOfStudents = *db[tableName]
 					all()
 				}
-
 			} else {
-				fmt.Println("command not recognize")
+				errCommand()
 			}
 			break
 		case Update:
-			if len(commandStruct) < 4 {
-				fmt.Println("command not recognize")
+			if len(commandStruct) < 4 && commandStruct[2] != "from"{
+				errCommand()
 			}else {
-				x,_ := strconv.Atoi(commandStruct[1])
-				tableName := strings.TrimSpace(commandStruct[3])
-				if db[tableName] == nil {
-					fmt.Println("table not exits")
-				} else {
-					for i, row := range arrayOfStudents {
-						if x == row.ID {
-							fmt.Printf("\n|  ID|               Fname|Age|Average |\n")
-							fmt.Println("------------------------------------")
-							fmt.Printf("|%4d|%20s|%3d|%2.2f|\n", row.ID, row.Fname, row.Age, row.Average)
-							students = append(students[:i], students[i+1:]...)
-							emptySlice := new(Student)
-							emptySlice.Insert(x)
-							students = append(students, *emptySlice)
-							db[tableName] = &students
-							arrayOfStudents = *db[tableName]
-							all()
-						}
-					}
-				}
+				update(commandStruct)
 			}
 
 			break
 		case Delete:
-			if len(commandStruct) < 4 {
-				fmt.Println("command not recognize")
+			if len(commandStruct) < 4 && commandStruct[2] != "from"{
+				errCommand()
 			}else {
-				x,_ := strconv.Atoi(commandStruct[1])
-				tableName := strings.TrimSpace(commandStruct[3])
-				if db[tableName] == nil {
-					fmt.Println("table not exits")
-				} else {
-					for i, row := range arrayOfStudents {
-						if x == row.ID {
-							fmt.Printf("\n|  ID|               Fname|Age|Average |\n")
-							fmt.Println("------------------------------------")
-							fmt.Printf("|%4d|%20s|%3d|%2.2f|\n", row.ID, row.Fname, row.Age, row.Average)
-							students = append(students[:i], students[i+1:]...)
-							db[tableName] = &students
-							arrayOfStudents = *db[tableName]
-							all()
-						}
-					}
-				}
+				deleteIt(commandStruct)
 			}
 			break
+
+		case Exit:
+			os.Exit(1)
+
 		default:
 			if len(commandStruct) > 1 {
-				fmt.Println("command not recognize")
+				errCommand()
 			}
 			break
 		}
 	}
-
 }
 
 func all()  {
-
-	fmt.Printf("\n|  ID|               Fname|Age|Average |\n")
-	fmt.Println("------------------------------------")
+	fmt.Println("\n" + strings.Repeat("-", len(outputArr[0])))
+	fmt.Println(outputArr[0])
+	fmt.Println(strings.Repeat("-", len(outputArr[0])))
 
 	for _, row := range arrayOfStudents {
-		fmt.Printf("|%4d|%20s|%3d|%2.2f|\n", row.ID, row.Fname, row.Age, row.Average)
+		fmt.Printf("|%4d|%20s|%3d| %9v | %8v | %9v |  %1.2f | %9d |\n", row.ID, row.Fname, row.Age, row.IsStudent, row.IsWorker, row.IsTeacher, row.Average, row.Experience)
+		fmt.Println(strings.Repeat("-", len(outputArr[0])))
 	}
 
-	fmt.Println("rows returned: ",len(arrayOfStudents))
+	fmt.Println("rows returned: ",len(arrayOfStudents), "\n")
 }
 
 func age()  {
-
-	fmt.Printf("\n|  ID|               Fname|Age|\n")
-	fmt.Println("------------------------------")
+	fmt.Println("\n" + strings.Repeat("-", len(outputArr[1])))
+	fmt.Println(outputArr[1])
+	fmt.Println(strings.Repeat("-", len(outputArr[1])))
 
 	for _, row := range arrayOfStudents {
 		fmt.Printf("|%4d|%20s|%3d|\n", row.ID, row.Fname, row.Age)
+		fmt.Println(strings.Repeat("-", len(outputArr[1])))
 	}
 
-	fmt.Println("rows returned: ", len(arrayOfStudents))
+	fmt.Println("rows returned: ", len(arrayOfStudents), "\n")
 }
 
 func average()  {
-
-	fmt.Printf("\n|  ID|               Fname|Average|\n")
-	fmt.Println("------------------------------")
+	fmt.Println("\n-----------------------------------")
+	fmt.Println("|  ID|               Fname|Average|")
+	fmt.Println("-----------------------------------")
 
 	for _, row := range arrayOfStudents {
-		fmt.Printf("|%4d|%20s|%2.2f|\n", row.ID, row.Fname, row.Average)
+		fmt.Printf("|%4d|%20s|  %1.2f |\n", row.ID, row.Fname, row.Average)
+		fmt.Println("-----------------------------------")
 	}
 
-	fmt.Println("rows returned: ", len(arrayOfStudents))
+	fmt.Println("rows returned: ", len(arrayOfStudents), "\n")
 }
 
 func fname()  {
-
-	fmt.Printf("\n|  ID|               Fname|\n")
-	fmt.Println("------------------------------")
+	fmt.Println("\n---------------------------")
+	fmt.Println("|  ID|               Fname|")
+	fmt.Println("---------------------------")
 
 	for _, row := range arrayOfStudents {
 		fmt.Printf("|%4d|%20s|\n", row.ID, row.Fname)
+		fmt.Println("---------------------------")
 	}
 
-	fmt.Println("rows returned: ", len(arrayOfStudents))
+	fmt.Println("rows returned: ", len(arrayOfStudents), "\n")
 }
 
 func less()  {
-	fmt.Printf("\n|  ID|               Fname|Age|\n")
-	fmt.Println("------------------------------")
+	fmt.Println("\n" + strings.Repeat("-", len(outputArr[1])))
+	fmt.Println(outputArr[1])
+	fmt.Println(strings.Repeat("-", len(outputArr[1])))
 
 	for _, row := range arrayOfStudents {
 		if row.Age < y {
-			fmt.Printf("|%4d|%20s|%3d|\n", row.ID, row.Fname, row.Age)
+			fmt.Printf("|%4d|%20s|%3d|\n\n", row.ID, row.Fname, row.Age)
+			fmt.Println(strings.Repeat("-", len(outputArr[1])))
 		}
 	}
 }
 
 func more()  {
-	fmt.Printf("\n|  ID|               Fname|Age|\n")
-	fmt.Println("------------------------------")
+	fmt.Println("\n" + strings.Repeat("-", len(outputArr[1])))
+	fmt.Println(outputArr[1])
+	fmt.Println(strings.Repeat("-", len(outputArr[1])))
 
 	for _, row := range arrayOfStudents {
 		if row.Age > y {
-			fmt.Printf("|%4d|%20s|%3d|\n", row.ID, row.Fname, row.Age)
+			fmt.Printf("|%4d|%20s|%3d|\n\n", row.ID, row.Fname, row.Age)
+			fmt.Println(strings.Repeat("-", len(outputArr[1])))
 		}
 	}
 }
 
 func equal()  {
-	fmt.Printf("\n|  ID|               Fname|Age|\n")
-	fmt.Println("------------------------------")
+	fmt.Println("\n" + strings.Repeat("-", len(outputArr[1])))
+	fmt.Println(outputArr[1])
+	fmt.Println(strings.Repeat("-", len(outputArr[1])))
 
 	for _, row := range arrayOfStudents {
 		if row.Age == y {
-			fmt.Printf("|%4d|%20s|%3d|\n", row.ID, row.Fname, row.Age)
+			fmt.Printf("|%4d|%20s|%3d|\n\n", row.ID, row.Fname, row.Age)
+			fmt.Println(strings.Repeat("-", len(outputArr[1])))
 		}
 	}
 }
 
 func (s *Student) Insert(x int)  Student{
 	age := 0
-	var fname string= ""
+	fname := ""
 
 	for fname == ""{
-		fmt.Println("Fname: ")
+		fmt.Print("\nFname: ")
 		fmt.Scan(&fname)
 	}
 	for age == 0{
-		fmt.Println("Age: ")
+		fmt.Print("Age: ")
 		fmt.Scan(&age)
+	}
+	var who bool
+	isSomeone := ""
+	for !who {
+		fmt.Print("Who is this person: ")
+		fmt.Scan(&isSomeone)
+		if isSomeone == "student"{
+			s.IsStudent = true
+			break
+		}else if isSomeone == "teacher" {
+			s.IsTeacher = true
+			break
+		}else if isSomeone == "worker" {
+			s.IsWorker = true
+			break
+		}else {
+			fmt.Println("\nenter right category (student|teache|worker)")
+			fmt.Println("--------------------------------------------\n")
+		}
+	}
+	if s.IsStudent == true {
+		var average float32
+		for average <= 0 {
+			fmt.Print("Enter average: ")
+			fmt.Scan(&average)
+		}
+		s.Average = average
+	}else if s.IsTeacher == true || s.IsWorker == true{
+		var experience int
+		for experience <= 0 {
+			fmt.Print("Enter experience: ")
+			fmt.Scan(&experience)
+		}
+		s.Experience = experience
 	}
 
 	s.ID = x
 	s.Fname = fname
 	s.Age = age
 	return *s
+}
+
+func update(commandStruct []string)  {
+	x,_ := strconv.Atoi(commandStruct[1])
+	tableName := strings.TrimSpace(commandStruct[3])
+	if db[tableName] == nil {
+		tableNotExist()
+	} else {
+		for i, row := range arrayOfStudents {
+			if x == row.ID {
+				fmt.Println("\n" + strings.Repeat("-", len(outputArr[0])))
+				fmt.Println(outputArr[0])
+				fmt.Println(strings.Repeat("-", len(outputArr[0])))
+				fmt.Printf("|%4d|%20s|%3d| %9v | %8v | %9v |  %1.2f | %9d |\n", row.ID, row.Fname, row.Age, row.IsStudent, row.IsWorker, row.IsTeacher, row.Average, row.Experience)
+				fmt.Println(strings.Repeat("-", len(outputArr[0])))
+				students = append(students[:i], students[i+1:]...)
+				emptySlice := new(Student)
+				emptySlice.Insert(x)
+				students = append(students, *emptySlice)
+				db[tableName] = &students
+				arrayOfStudents = *db[tableName]
+				all()
+			}
+		}
+	}
+}
+
+func deleteIt(commandStruct []string)  {
+	x,_ := strconv.Atoi(commandStruct[1])
+	tableName := strings.TrimSpace(commandStruct[3])
+	if db[tableName] == nil {
+		tableNotExist()
+	} else {
+		for i, row := range arrayOfStudents {
+			if x == row.ID {
+				fmt.Println("\n" + strings.Repeat("-", len(outputArr[0])))
+				fmt.Println(outputArr[0])
+				fmt.Println(strings.Repeat("-", len(outputArr[0])))
+				fmt.Printf("|%4d|%20s|%3d| %9v | %8v | %9v |  %1.2f | %9d |\n", row.ID, row.Fname, row.Age, row.IsStudent, row.IsWorker, row.IsTeacher, row.Average, row.Experience)
+				fmt.Println(strings.Repeat("-", len(outputArr[0])))
+				students = append(students[:i], students[i+1:]...)
+				db[tableName] = &students
+				arrayOfStudents = *db[tableName]
+				all()
+			}
+		}
+	}
+}
+
+func errCommand()  {
+	fmt.Println("\ncommand not recognize")
+	fmt.Println("---------------------\n")
+}
+
+func tableNotExist()  {
+	fmt.Println("\ntable not exits")
+	fmt.Println("---------------\n")
 }
