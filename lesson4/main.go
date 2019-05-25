@@ -147,12 +147,15 @@ func main() {
 			}
 			break
 		case Update:
-			if len(commandStruct) < 4 && commandStruct[2] != "from"{
+			if len(commandStruct) < 3 {
 				errCommand()
 			}else {
-				update(commandStruct)
+				if len(commandStruct) < 4 && commandStruct[2] != "from" {
+					errCommand()
+				} else {
+					update(commandStruct)
+				}
 			}
-
 			break
 		case Delete:
 			if len(commandStruct) < 4 && commandStruct[2] != "from"{
@@ -321,7 +324,7 @@ func (s *Student) Insert(x int)  Student{
 
 }
 
-func (s *Student) UpdateIt(x int) Student{
+func (s *Student)UpdateIt() Student{
 	age := 0
 	fname := ""
 	var who bool
@@ -337,18 +340,14 @@ func (s *Student) UpdateIt(x int) Student{
 			fmt.Print("\nFname: ")
 			fmt.Scan(&fname)
 		}
-		s.ID = x
 		s.Fname = fname
-		return *s
 		break
 	case "age":
 		for age == 0{
 			fmt.Print("Age: ")
 			fmt.Scan(&age)
 		}
-		s.ID = x
 		s.Age = age
-		return *s
 		break
 	case "who":
 		for !who {
@@ -384,8 +383,6 @@ func (s *Student) UpdateIt(x int) Student{
 			}
 			s.Experience = experience
 		}
-		s.ID = x
-		return *s
 		break
 
 	case "all":
@@ -431,19 +428,15 @@ func (s *Student) UpdateIt(x int) Student{
 			}
 			s.Experience = experience
 		}
-
-		s.ID = x
 		s.Fname = fname
 		s.Age = age
-		return *s
 		break
 	}
-
 	return *s
 }
 
 func update(commandStruct []string)  {
-	x,_ := strconv.Atoi(commandStruct[1])
+	x, _ := strconv.Atoi(commandStruct[1])
 	tableName := strings.TrimSpace(commandStruct[3])
 	if db[tableName] == nil {
 		tableNotExist()
@@ -456,9 +449,9 @@ func update(commandStruct []string)  {
 				fmt.Printf("|%4d|%20s|%3d| %9v | %8v | %9v |  %1.2f | %9d |\n", row.ID, row.Fname, row.Age, row.IsStudent, row.IsWorker, row.IsTeacher, row.Average, row.Experience)
 				fmt.Println(strings.Repeat("-", len(outputArr[0])))
 				students = append(students[:i], students[i+1:]...)
-				emptySlice := new(Student)
-				emptySlice.UpdateIt(x)
-				students = append(students, *emptySlice)
+				row.UpdateIt()
+
+				students = append(students, row)
 				db[tableName] = &students
 				arrayOfStudents = *db[tableName]
 				all()
