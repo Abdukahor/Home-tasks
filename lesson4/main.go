@@ -350,39 +350,7 @@ func (s *Student)UpdateIt() Student{
 		s.Age = age
 		break
 	case "who":
-		for !who {
-			fmt.Print("Who is this person: ")
-			fmt.Scan(&isSomeone)
-			if isSomeone == "student"{
-				s.IsStudent = true
-				break
-			}else if isSomeone == "teacher" {
-				s.IsTeacher = true
-				break
-			}else if isSomeone == "worker" {
-				s.IsWorker = true
-				break
-			}else {
-				fmt.Println("\nenter right category (student|teache|worker)")
-				fmt.Println("--------------------------------------------\n")
-			}
-		}
-		if s.IsStudent == true {
-
-			var average float32
-			for average <= 0 {
-				fmt.Print("Enter average: ")
-				fmt.Scan(&average)
-			}
-			s.Average = average
-		}else if s.IsTeacher == true || s.IsWorker == true{
-			var experience int
-			for experience <= 0 {
-				fmt.Print("Enter experience: ")
-				fmt.Scan(&experience)
-			}
-			s.Experience = experience
-		}
+		s.whoIsIt(who, isSomeone)
 		break
 
 	case "all":
@@ -395,39 +363,8 @@ func (s *Student)UpdateIt() Student{
 			fmt.Scan(&age)
 		}
 
-		for !who {
-			fmt.Print("Who is this person: ")
-			fmt.Scan(&isSomeone)
-			if isSomeone == "student"{
-				s.IsStudent = true
-				break
-			}else if isSomeone == "teacher" {
-				s.IsTeacher = true
-				break
-			}else if isSomeone == "worker" {
-				s.IsWorker = true
-				break
-			}else {
-				fmt.Println("\nenter right category (student|teache|worker)")
-				fmt.Println("--------------------------------------------\n")
-			}
-		}
-		if s.IsStudent == true {
+		s.whoIsIt(who, isSomeone)
 
-			var average float32
-			for average <= 0 {
-				fmt.Print("Enter average: ")
-				fmt.Scan(&average)
-			}
-			s.Average = average
-		}else if s.IsTeacher == true || s.IsWorker == true{
-			var experience int
-			for experience <= 0 {
-				fmt.Print("Enter experience: ")
-				fmt.Scan(&experience)
-			}
-			s.Experience = experience
-		}
 		s.Fname = fname
 		s.Age = age
 		break
@@ -448,6 +385,7 @@ func update(commandStruct []string)  {
 				fmt.Println(strings.Repeat("-", len(outputArr[0])))
 				fmt.Printf("|%4d|%20s|%3d| %9v | %8v | %9v |  %1.2f | %9d |\n", row.ID, row.Fname, row.Age, row.IsStudent, row.IsWorker, row.IsTeacher, row.Average, row.Experience)
 				fmt.Println(strings.Repeat("-", len(outputArr[0])))
+
 				students = append(students[:i], students[i+1:]...)
 				row.UpdateIt()
 
@@ -490,4 +428,48 @@ func errCommand()  {
 func tableNotExist()  {
 	fmt.Println("\ntable not exits")
 	fmt.Println("---------------\n")
+}
+
+func (s *Student) whoIsIt(who bool, isSomeone string)  {
+	for !who {
+		fmt.Print("Who is this person: ")
+		fmt.Scan(&isSomeone)
+		if isSomeone == "student"{
+			s.IsWorker = false
+			s.IsTeacher = false
+			s.IsStudent = true
+			break
+		}else if isSomeone == "teacher" {
+			s.IsWorker = false
+			s.IsStudent = false
+			s.IsTeacher = true
+			break
+		}else if isSomeone == "worker" {
+			s.IsStudent = false
+			s.IsTeacher = false
+			s.IsWorker = true
+			break
+		}else {
+			fmt.Println("\nenter right category (student|teache|worker)")
+			fmt.Println("--------------------------------------------\n")
+		}
+	}
+	if s.IsStudent == true {
+
+		var average float32
+		for average <= 0 {
+			fmt.Print("Enter average: ")
+			fmt.Scan(&average)
+		}
+		s.Experience = 0
+		s.Average = average
+	}else if s.IsTeacher == true || s.IsWorker == true{
+		var experience int
+		for experience <= 0 {
+			fmt.Print("Enter experience: ")
+			fmt.Scan(&experience)
+		}
+		s.Experience = experience
+		s.Average = 0
+	}
 }
