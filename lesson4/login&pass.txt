@@ -1,2 +1,10 @@
 login: root
 pass: qwerty
+
+commands:
+  create [tablename]
+  insert into [tablename]
+  select [*,fname,average] from [tablename]
+  select * from [tablename] where age [<,>,==] [number]
+  update [id] from [tablename]
+  delete [id] from [tablename]
