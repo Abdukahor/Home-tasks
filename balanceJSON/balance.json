@@ -1,0 +1,22 @@
+[
+  {
+    "account":"baker",
+    "balance": 100.0
+  },
+  {
+    "account":"tomson",
+    "balance": 100.0
+  },
+  {
+    "account":"carlson",
+    "balance": 100.0
+  },
+  {
+    "account":"allison",
+    "balance": 100.0
+  },
+  {
+    "account":"brown",
+    "balance": 100.0
+  }
+]
