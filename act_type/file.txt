@@ -1,0 +1,24 @@
+hash : "257432d8d03b0b307d0c1e509a7e0df2"
+
+{"type" : {
+    "login": "Abdukahor",
+    "password": "abdukahor_sft_4",
+    "sum": 50
+}}
+
+
+{"type" :{
+    "login": "Abdukahor",
+    "password": "2517",
+    "order" : [
+                {
+                    "name" : "pen",
+                    "amount": 3
+                },
+                 {
+                    "name" : "book",
+                    "amount": 2
+                }
+          ]
+    }
+}
